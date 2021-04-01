@@ -41,8 +41,14 @@ def get_search_links():
     “https://www.goodreads.com/book/show/kdkd".
 
     """
+    url = "https://www.goodreads.com/search?q=fantasy&qid=NwUsLiA2Nc"
+    r = requests.get(url)
+    data = r.text
+    soup = BeautifulSoup(data)
 
-    pass
+    title_links = soup.find_all('a', {'class':'bookTitle'}, limit = 10)
+    titles = ["https://www.goodreads.com" + title['href'] for title in title_links]
+    return titles
 
 
 def get_book_summary(book_url):
@@ -188,7 +194,8 @@ class TestCases(unittest.TestCase):
 if __name__ == '__main__':
     #print(extra_credit("extra_credit.htm"))
     #unittest.main(verbosity=2)
-    print(get_titles_from_search_results('search_results.htm'))
+    #print(get_titles_from_search_results('search_results.htm'))
+    print(get_search_links())
 
 
 
