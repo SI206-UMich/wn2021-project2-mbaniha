@@ -87,7 +87,20 @@ def summarize_best_books(filepath):
     ("Fiction", "The Testaments (The Handmaid's Tale, #2)", "https://www.goodreads.com/choiceawards/best-fiction-books-2020") 
     to your list of tuples.
     """
-    pass
+    bestList = []
+    bestFile = open(filepath,'r',encoding='UTF-8')
+    soup = BeautifulSoup(bestFile, 'html.parser')
+    
+    divs = soup.find_all('div', {'class':'category clearFix'})
+    for div in divs:
+        category = div.find('h4').text.strip()
+        name = div.find('img')['alt'].strip()
+        link = div.find('a')['href']
+        summary = (category,name,link)
+        bestList.append(summary)
+    
+    return bestList
+
 
 
 def write_csv(data, filename):
@@ -204,7 +217,8 @@ if __name__ == '__main__':
     #unittest.main(verbosity=2)
     #print(get_titles_from_search_results('search_results.htm'))
     #print(get_search_links())
-    print(get_book_summary('https://www.goodreads.com/book/show/52578297-the-midnight-library?from_choice=true'))
+    #print(get_book_summary('https://www.goodreads.com/book/show/52578297-the-midnight-library?from_choice=true'))
+    print(summarize_best_books("best_books_2020.htm"))
 
 
 
