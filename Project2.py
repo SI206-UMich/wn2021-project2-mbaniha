@@ -44,7 +44,7 @@ def get_search_links():
     url = "https://www.goodreads.com/search?q=fantasy&qid=NwUsLiA2Nc"
     r = requests.get(url)
     data = r.text
-    soup = BeautifulSoup(data)
+    soup = BeautifulSoup(data, 'html.parser') #VSCode warning: suggested adding features for consistency
 
     title_links = soup.find_all('a', {'class':'bookTitle'}, limit = 10)
     titles = ["https://www.goodreads.com" + title['href'] for title in title_links]
@@ -64,8 +64,16 @@ def get_book_summary(book_url):
     You can easily capture CSS selectors with your browser's inspector window.
     Make sure to strip() any newlines from the book title and number of pages.
     """
+    r = requests.get(book_url)
+    data = r.content
+    soup = BeautifulSoup(data, 'html.parser')
 
-    pass
+    title = soup.find('h1').text.strip()
+    author = soup.find('a', {'class':'authorName'}).text.strip()
+    pages = soup.find('span', itemprop='numberOfPages').text.strip()
+    numPages = int(re.findall(r'[0-9]+', pages)[0])
+    
+    return (title, author, numPages)
 
 
 def summarize_best_books(filepath):
@@ -195,7 +203,8 @@ if __name__ == '__main__':
     #print(extra_credit("extra_credit.htm"))
     #unittest.main(verbosity=2)
     #print(get_titles_from_search_results('search_results.htm'))
-    print(get_search_links())
+    #print(get_search_links())
+    print(get_book_summary('https://www.goodreads.com/book/show/52578297-the-midnight-library?from_choice=true'))
 
 
 
