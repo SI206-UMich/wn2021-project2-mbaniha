@@ -14,8 +14,18 @@ def get_titles_from_search_results(filename):
 
     [('Book title 1', 'Author 1'), ('Book title 2', 'Author 2')...]
     """
+    titles = []
+    soup = BeautifulSoup(open(filename), 'html.parser')
 
-    pass
+    title_links = soup.find_all('a', {'class':'bookTitle'})
+    titles = [title.text.strip() for title in title_links]
+
+    author_links = soup.find_all('a', {'class':'authorName'})
+    authors = [author.text.strip() for author in author_links]
+    
+    return tuple(zip(titles, authors))
+    
+    
 
 
 def get_search_links():
@@ -111,7 +121,7 @@ class TestCases(unittest.TestCase):
         # check that the variable you saved after calling the function is a list
 
         # check that each item in the list is a tuple
-
+        pass
         # check that the first book and author tuple is correct (open search_results.htm and find it)
 
         # check that the last title is correct (open search_results.htm and find it)
@@ -121,7 +131,7 @@ class TestCases(unittest.TestCase):
 
         # check that the length of TestCases.search_urls is correct (10 URLs)
 
-
+        pass
         # check that each URL in the TestCases.search_urls is a string
         # check that each URL contains the correct url for Goodreads.com followed by /book/show/
 
@@ -129,7 +139,7 @@ class TestCases(unittest.TestCase):
     def test_get_book_summary(self):
         # create a local variable – summaries – a list containing the results from get_book_summary()
         # for each URL in TestCases.search_urls (should be a list of tuples)
-
+        pass
         # check that the number of book summaries is correct (10)
 
             # check that each item in the list is a tuple
@@ -145,7 +155,7 @@ class TestCases(unittest.TestCase):
 
     def test_summarize_best_books(self):
         # call summarize_best_books and save it to a variable
-
+        pass
         # check that we have the right number of best books (20)
 
             # assert each item in the list of best books is a tuple
@@ -159,7 +169,7 @@ class TestCases(unittest.TestCase):
 
     def test_write_csv(self):
         # call get_titles_from_search_results on search_results.htm and save the result to a variable
-
+        pass
         # call write csv on the variable you saved and 'test.csv'
 
         # read in the csv that you wrote (create a variable csv_lines - a list containing all the lines in the csv you just wrote to above)
@@ -176,8 +186,10 @@ class TestCases(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print(extra_credit("extra_credit.htm"))
-    unittest.main(verbosity=2)
+    #print(extra_credit("extra_credit.htm"))
+    #unittest.main(verbosity=2)
+    print(get_titles_from_search_results('search_results.htm'))
+
 
 
 
