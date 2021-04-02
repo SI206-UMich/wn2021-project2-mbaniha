@@ -15,15 +15,17 @@ def get_titles_from_search_results(filename):
     [('Book title 1', 'Author 1'), ('Book title 2', 'Author 2')...]
     """
     titles = []
+    authors = []
     search = open(filename)
     soup = BeautifulSoup(search, 'html.parser')
     search.close()
     
-    title_links = soup.find_all('a', {'class':'bookTitle'})
-    titles = [title.text.strip() for title in title_links]
-
-    author_links = soup.find_all('a', {'class':'authorName'})
-    authors = [author.text.strip() for author in author_links]
+    table = soup.find_all('tr')
+    for element in table:
+        title = element.find('a', {'class':'bookTitle'})
+        titles.append(title.text.strip())
+        author = element.find('a', {'class':'authorName'})
+        authors.append(author.text.strip())
     
     return list(zip(titles, authors))
     
@@ -126,9 +128,10 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
-    with open(filename, 'w') as csvfile:
-        fieldnames = ['Book Title', 'Author Name']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    with open(filename, 'w', newline='') as csvfile:
+        field_names = ['Book Title', 'Author Name']
+        writer = csv.writer(csvfile)
+        writer.writerow(field_names)
         for book in data:
             writer.writerow(book)
     #No need to close file when using with statement
@@ -142,7 +145,18 @@ def extra_credit(filepath):
     Please see the instructions document for more information on how to complete this function.
     You do not have to write test cases for this function.
     """
-    pass
+    
+    ecFile = open(filepath, 'r', encoding='UTF-8')
+    soup = BeautifulSoup(ecFile, 'html.parser')
+    ecFile.close()
+
+    description = soup.find('div', {'id':'description'}).text.strip()
+
+    regex = '([A-Z][a-z][a-z]+(?=[ \t][A-Z])(?:[ \t][A-Z][a-z]+)+)'
+    # regex considering all 3 requirements of a Named Entity
+    named = re.findall(regex, description)
+    return named
+    
 
 class TestCases(unittest.TestCase):
 
@@ -162,7 +176,7 @@ class TestCases(unittest.TestCase):
         first = ('Harry Potter and the Deathly Hallows (Harry Potter, #7)', 'J.K. Rowling')
         self.assertEqual(titles[0], first)
         # check that the last title is correct (open search_results.htm and find it)
-        last = ('Harry Potter: The Prequel (Harry Potter, #0.5)', 'Julian Harrison')
+        last = ('Harry Potter: The Prequel (Harry Potter, #0.5)', 'J.K. Rowling')
         self.assertEqual(titles[-1], last)
 
         
@@ -220,22 +234,29 @@ class TestCases(unittest.TestCase):
         # call write csv on the variable you saved and 'test.csv'
         write_csv(titles, 'test.csv')
         # read in the csv that you wrote (create a variable csv_lines - a list containing all the lines in the csv you just wrote to above)
-        
-
+        csv_lines = []
+        with open('test.csv', 'r') as csvfile:
+            for line in csv.reader(csvfile):
+                csv_lines.append(line)
         # check that there are 21 lines in the csv
-
+        self.assertEqual(len(csv_lines), 21)
         # check that the header row is correct
-
+        self.assertEqual(csv_lines[0], ["Book Title","Author Name"])
         # check that the next row is 'Harry Potter and the Deathly Hallows (Harry Potter, #7)', 'J.K. Rowling'
-
+        self.assertEqual(csv_lines[1], ['Harry Potter and the Deathly Hallows (Harry Potter, #7)', 'J.K. Rowling'])
         # check that the last row is 'Harry Potter: The Prequel (Harry Potter, #0.5)', 'J.K. Rowling'
+        self.assertEqual(csv_lines[-1], ['Harry Potter: The Prequel (Harry Potter, #0.5)', 'J.K. Rowling'])
 
 
 
 if __name__ == '__main__':
-    #print(extra_credit("extra_credit.htm"))
+    print(extra_credit("extra_credit.htm"))
+    #With the page in extra_credit.htm, a total of 10 distinct Named Entities should be found
+
     unittest.main(verbosity=2)
-    #print(get_titles_from_search_results('search_results.htm')[-1])
+    
+    #print statements to help during implementation and testing
+    #print(get_titles_from_search_results('search_results.htm'))
     #print(get_search_links())
     #print(get_book_summary('https://www.goodreads.com/book/show/52578297-the-midnight-library?from_choice=true'))
     #print(summarize_best_books("best_books_2020.htm"))
